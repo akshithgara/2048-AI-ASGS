@@ -4,7 +4,7 @@
 
 import sys
 from datetime import datetime
-from gbfs import gbfs
+from astargs import gbfs
 
 from scraper import *
 

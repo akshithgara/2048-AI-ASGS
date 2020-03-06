@@ -71,9 +71,12 @@ class grid:
         self.spawnList = spawn_list
         self.size = size
         self.H = self.heuristic()
+        self.F = self.H + len(self.PATH)
 
-    def __gt__(self, other):
-        if self.H > other.H:
+    def __lt__(self, other):
+        if self.F > other.F:
+            return True
+        elif self.F  == other.F and self.H < other.H:
             return True
         return False
 
