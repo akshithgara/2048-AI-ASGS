@@ -3,6 +3,7 @@
 # CS5400
 
 import copy
+import math
 
 
 def transpose(field):
@@ -97,7 +98,7 @@ class grid:
         for line in self.STATE:
             for i in line:
                 if i > highScore:
-                    return highScore
+                    highScore = i
         return highScore
 
     # Returns the number of available cells.
@@ -132,7 +133,7 @@ class grid:
 
     # Heuristic that adds merge-count, max-tile and number of available cells.
     def heuristic(self):
-        return self.getMaxTile() + self.mergeFactor() + self.getAvailableCells()
+        return math.log2(self.getMaxTile()+ self.mergeFactor() + self.getAvailableCells())
 
     def move(self, direction, spawnVal):
         def move_row_left(row):
