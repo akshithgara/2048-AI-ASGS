@@ -4,7 +4,7 @@
 
 import copy
 import math
-
+import numpy as np
 
 def transpose(field):
     return [list(row) for row in zip(*field)]
@@ -75,9 +75,9 @@ class grid:
         self.F = self.H + len(self.PATH)
 
     def __lt__(self, other):
-        if self.F > other.F:
+        if self.F < other.F:
             return True
-        elif self.F  == other.F and self.H < other.H:
+        elif self.F == other.F and self.H < other.H:
             return True
         return False
 
@@ -129,11 +129,46 @@ class grid:
             for i in range(len(new_row)):
                 if i + 1 < len(new_row) and new_row[i] == new_row[i + 1]:
                     mergeCount += 1
-        return mergeCount
+        return -1 * mergeCount
+
+    def eval_smoothness(self):
+        '''
+        Sum the difference between each pair of adjacent tiles. Smaller is better so we take its reciprocal.
+        '''
+        grid = copy.copy(self.STATE)
+        def row_smoothness(grid):
+            return sum([abs(r[c] - r[c + 1]) for r in grid for c in range(len(r) - 1)])
+
+        return -1 * (row_smoothness(grid) + row_smoothness(zip(*grid)) + 1)
+
+    def eval_monotonicity(self):
+        '''
+        Eval function which measures how much the rows and cols are sorted in increasing or descending order.
+        Specifically we count the total number of times the rows and cols switch from increasing to decreasing or vice versa.
+        Smaller is better so we take its reciprocal.
+        '''
+        grid = copy.copy(self.STATE)
+
+        def row_monotonicity(grid):
+            switches = 0
+            for r in grid:
+                increasing = None
+                for c in range(len(r) - 1):
+                    if r[c + 1] > r[c]:
+                        if increasing == False:
+                            switches += 1
+                        increasing = True
+                    elif r[c + 1] < r[c]:
+                        if increasing == True:
+                            switches += 1
+                        increasing = False
+            return switches
+
+        return -1 * (row_monotonicity(grid) + row_monotonicity(zip(*grid)) + 1)
 
     # Heuristic that adds merge-count, max-tile and number of available cells.
     def heuristic(self):
-        return math.log2(self.getMaxTile()+ self.mergeFactor() + self.getAvailableCells())
+        return self.mergeFactor() + math.log2(16/self.getMaxTile())
 
     def move(self, direction, spawnVal):
         def move_row_left(row):
