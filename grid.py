@@ -6,10 +6,13 @@ import copy
 import math
 import numpy as np
 
+
+# Transposes the given grid
 def transpose(field):
     return [list(row) for row in zip(*field)]
 
 
+# Inverts the given grid
 def invert(field):
     return [row[::-1] for row in field]
 
@@ -65,16 +68,17 @@ def spawn(field, spawnNums, spawnCount, size):
 # Grid class to perform moves and add up values if they match
 class grid:
 
-    def __init__(self, state, path, spawn, spawn_list, size):
+    def __init__(self, state, path, spawn, spawn_list, size, goal):
         self.STATE = state
         self.PATH = path
         self.SPAWN = spawn
         self.spawnList = spawn_list
         self.size = size
-        self.H = self.heuristic()
-        self.F = self.H + len(self.PATH)
+        self.goal = goal
+        self.H = self.heuristic()  # Computes and stores the heuristic value
+        self.F = self.H + len(self.PATH)  # f(n) = g(n) + h(n)
 
-    def __lt__(self, other):
+    def __lt__(self, other):  # To pick the lesser value for priority queue
         if self.F < other.F:
             return True
         elif self.F == other.F and self.H < other.H:
@@ -136,10 +140,11 @@ class grid:
         Sum the difference between each pair of adjacent tiles. Smaller is better so we take its reciprocal.
         '''
         grid = copy.copy(self.STATE)
+
         def row_smoothness(grid):
             return sum([abs(r[c] - r[c + 1]) for r in grid for c in range(len(r) - 1)])
 
-        return -1 * (row_smoothness(grid) + row_smoothness(zip(*grid)) + 1)
+        return 1 * (row_smoothness(grid) + row_smoothness(zip(*grid)) + 1)
 
     def eval_monotonicity(self):
         '''
@@ -168,7 +173,7 @@ class grid:
 
     # Heuristic that adds merge-count, max-tile and number of available cells.
     def heuristic(self):
-        return self.mergeFactor() + math.log2(16/self.getMaxTile())
+        return self.mergeFactor() + math.log2(16 / self.getMaxTile())
 
     def move(self, direction, spawnVal):
         def move_row_left(row):
@@ -217,16 +222,16 @@ class grid:
             else:
                 return False
 
-    def CHILDREN(self, sl, gridSize):  # Function to try out all the moves and add it to the childList.
+    def CHILDREN(self, sl, gridSize, goal):  # Function to try out all the moves and add it to the childList.
 
         childList = []
         for direction in ['Up', 'Down', 'Left', 'Right']:
-            curGrid = grid(state=self.STATE, path=self.PATH, spawn=self.SPAWN, spawn_list=sl, size=gridSize)
+            curGrid = grid(state=self.STATE, path=self.PATH, spawn=self.SPAWN, spawn_list=sl, size=gridSize, goal=goal)
             if curGrid.move(direction, self.SPAWN):
                 # Generate the state for the child
                 childState = curGrid.STATE
                 child = grid(childState, ''.join([self.PATH, direction[0]]), self.SPAWN + 1, spawn_list=sl,
-                             size=gridSize)
+                             size=gridSize, goal=goal)
                 childList.append(child)
 
         return childList

@@ -16,11 +16,11 @@ def isGoal(state, goal):
     return False
 
 
-# Implementation of Greedy Best First Search
-def gbfs(state, goal, spawnList, gridSize):
+# Implementation of A star Graph Search
+def Asgs(state, goal, spawnList, gridSize):
     frontier = queue.PriorityQueue()  # Priority Queue Implementation
 
-    root = grid(state, '', 0, spawnList, gridSize)
+    root = grid(state, '', 0, spawnList, gridSize, goal)
     frontier.put(root)
 
     explored = set()  # A python set to store explored states. Using a set as it has O(1) look up time.
@@ -31,7 +31,7 @@ def gbfs(state, goal, spawnList, gridSize):
         if isGoal(curNode.STATE, goal):
             return curNode.PATH, curNode
         else:
-            for child in curNode.CHILDREN(spawnList, gridSize):
+            for child in curNode.CHILDREN(spawnList, gridSize, goal):
                 visited = child in explored # Checks if the child node is in explored set.
                 if not visited:
                     frontier.put(child)
