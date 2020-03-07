@@ -171,10 +171,11 @@ class grid:
 
         return -1 * (row_monotonicity(grid) + row_monotonicity(zip(*grid)) + 1)
 
-    # Heuristic that adds merge-count, max-tile and number of available cells.
+    # Heuristic that adds merge-count and log of goal and maxtile.
     def heuristic(self):
-        return self.mergeFactor() + math.log2(16 / self.getMaxTile())
+        return self.mergeFactor() + math.log2(self.goal / self.getMaxTile())
 
+    # Move function to make moves
     def move(self, direction, spawnVal):
         def move_row_left(row):
             def tighten(row):  # squeeze non-zero elements together
