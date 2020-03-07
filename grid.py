@@ -171,7 +171,9 @@ class grid:
 
         return -1 * (row_monotonicity(grid) + row_monotonicity(zip(*grid)) + 1)
 
-    # Heuristic that adds merge-count and log of goal and maxtile.
+    # Heuristic that adds merge-count and log of goal and maxtile. This heuristic is admissible because the log value
+    # will never exceed the max value of current state and the merge value is also less that the path value for a
+    # given state.
     def heuristic(self):
         return self.mergeFactor() + math.log2(self.goal / self.getMaxTile())
 
